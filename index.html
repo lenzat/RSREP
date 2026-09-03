@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RS Bootcamp — Заявка на акселерацию</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --primary:#1d6bfc; --primary-hover:#1558e0; --primary-pressed:#1148c0;
+    --accent-soft:#eef4ff; --bg:#f7f8fa; --raised:#ffffff; --sunken:#f1f2f4;
+    --border:#e5e7eb; --border-strong:#d1d5db;
+    --text:#111827; --text-secondary:#4a5060; --text-tertiary:#6b7280; --text-disabled:#9ca3af;
+    --success:#16a34a; --success-bg:#dcfce7;
+    --warning:#ea580c; --warning-bg:#ffedd5;
+    --danger:#dc2626; --danger-bg:#fee2e2;
+    --font-sans:'Inter',system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);}
+  .shell{max-width:920px;margin:0 auto;padding:32px 20px 80px;}
+
+  /* header */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-logo{height:40px;width:auto;flex-shrink:0;}
+  .brand-text{line-height:1.15;}
+  .brand-text .name{font-weight:700;font-size:15px;letter-spacing:.2px;}
+  .brand-text .sub{font-size:12px;color:var(--text-tertiary);}
+  .admin-toggle{border:1px solid var(--border-strong);background:var(--raised);color:var(--text-secondary);
+    font-family:var(--font-sans);font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;}
+  .admin-toggle:hover{border-color:var(--primary);color:var(--primary);}
+
+  h1{font-size:28px;font-weight:700;letter-spacing:-.3px;margin:0 0 6px;}
+  .lede{color:var(--text-secondary);font-size:15px;line-height:1.5;margin:0 0 28px;max-width:60ch;}
+
+  /* progress rail */
+  .rail{display:flex;gap:6px;margin-bottom:28px;}
+  .rail-step{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .2s;}
+  .rail-step.done{background:var(--primary);}
+  .rail-step.current{background:var(--primary);}
+  .rail-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-tertiary);margin-bottom:8px;font-family:var(--font-mono);}
+
+  /* card */
+  .card{background:var(--raised);border:1px solid var(--border);border-radius:12px;padding:32px;}
+  .step-title{font-size:19px;font-weight:700;margin:0 0 4px;}
+  .step-desc{font-size:13.5px;color:var(--text-tertiary);margin:0 0 24px;}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px;color:var(--text);}
+  .field .hint{font-weight:400;color:var(--text-tertiary);font-size:12.5px;margin-left:6px;}
+  .field input[type=text],.field input[type=email],.field input[type=tel],.field input[type=url],
+  .field input[type=number],.field textarea,.field select{
+    width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:10px 12px;
+    font-family:var(--font-sans);font-size:14px;color:var(--text);background:var(--raised);
+  }
+  .field textarea{resize:vertical;min-height:88px;line-height:1.5;}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .row3{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;}
+  @media(max-width:640px){.row2,.row3{grid-template-columns:1fr;}}
+
+  .radio-group{display:flex;gap:10px;flex-wrap:wrap;}
+  .radio-pill{border:1px solid var(--border-strong);border-radius:999px;padding:8px 16px;font-size:13.5px;cursor:pointer;color:var(--text-secondary);}
+  .radio-pill.active{border-color:var(--primary);background:var(--accent-soft);color:var(--primary);font-weight:600;}
+
+  .team-row{border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;position:relative;background:var(--sunken);}
+  .team-row .remove{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:13px;}
+  .add-btn{border:1px dashed var(--border-strong);background:none;border-radius:8px;padding:10px 14px;font-size:13.5px;color:var(--text-secondary);cursor:pointer;width:100%;}
+  .add-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+  .file-drop{border:1px dashed var(--border-strong);border-radius:10px;padding:18px;text-align:center;font-size:13.5px;color:var(--text-tertiary);cursor:pointer;}
+  .file-drop.has-file{border-color:var(--primary);background:var(--accent-soft);color:var(--primary);}
+  .file-drop input{display:none;}
+
+  .consent{display:flex;gap:10px;align-items:flex-start;background:var(--sunken);border-radius:10px;padding:14px 16px;}
+  .consent input{margin-top:3px;}
+  .consent label{font-size:13.5px;line-height:1.5;color:var(--text-secondary);}
+
+  .nav{display:flex;justify-content:space-between;margin-top:28px;}
+  button.primary{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-sans);}
+  button.primary:hover{background:var(--primary-hover);}
+  button.primary:disabled{background:var(--text-disabled);cursor:not-allowed;}
+  button.ghost{background:none;border:1px solid var(--border-strong);color:var(--text-secondary);border-radius:8px;padding:11px 22px;font-size:14px;cursor:pointer;font-family:var(--font-sans);}
+  button.ghost:hover{border-color:var(--text-secondary);}
+
+  .note{font-size:12px;color:var(--text-tertiary);margin-top:6px;line-height:1.5;}
+
+  /* results */
+  .verdict{border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+  .verdict.invite{background:var(--success-bg);}
+  .verdict.revise{background:var(--warning-bg);}
+  .verdict.reject{background:var(--danger-bg);}
+  .verdict .score{font-family:var(--font-mono);font-size:36px;font-weight:600;}
+  .verdict .score-max{font-size:16px;color:var(--text-tertiary);font-weight:500;}
+  .verdict .label{font-weight:700;font-size:15.5px;margin-top:4px;}
+  .verdict .summary{font-size:13.5px;color:var(--text-secondary);margin-top:8px;line-height:1.5;}
+
+  .crit{border-bottom:1px solid var(--border);padding:14px 0;}
+  .crit:last-child{border-bottom:none;}
+  .crit-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .crit-name{font-size:14px;font-weight:600;}
+  .crit-score{font-family:var(--font-mono);font-size:13.5px;color:var(--text-secondary);}
+  .crit-bar-bg{height:6px;background:var(--sunken);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+  .crit-bar{height:100%;background:var(--primary);}
+  .crit-comment{font-size:13px;color:var(--text-tertiary);line-height:1.5;}
+
+  .loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:50px 0;color:var(--text-tertiary);font-size:14px;}
+  .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* admin */
+  .admin-overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);display:flex;justify-content:center;align-items:flex-start;padding:40px 16px;z-index:50;overflow:auto;}
+  .admin-panel{background:var(--raised);border-radius:14px;max-width:880px;width:100%;padding:28px;}
+  .admin-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .admin-close{background:none;border:none;font-size:20px;color:var(--text-tertiary);cursor:pointer;}
+  table.apps{width:100%;border-collapse:collapse;font-size:13.5px;}
+  table.apps th{text-align:left;color:var(--text-tertiary);font-weight:600;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--border);}
+  table.apps td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top;}
+  table.apps tr:hover{background:var(--sunken);cursor:pointer;}
+
+  .admin-panel-wide{max-width:1180px;}
+  .admin-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;}
+  .admin-stat{background:var(--sunken);border-radius:10px;padding:12px 14px;}
+  .admin-stat .num{font-family:var(--font-mono);font-size:22px;font-weight:700;}
+  .admin-stat .lbl{font-size:11.5px;color:var(--text-tertiary);margin-top:2px;}
+  .admin-toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .admin-toolbar input[type=text]{flex:1;min-width:180px;border:1px solid var(--border-strong);border-radius:8px;padding:8px 12px;font-family:var(--font-sans);font-size:13.5px;}
+  .admin-toolbar select{border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font-family:var(--font-sans);font-size:13.5px;background:var(--raised);}
+  @media(max-width:760px){.admin-stats{grid-template-columns:repeat(2,1fr);}}
+
+  /* chat widget */
+  .chat-fab{position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:50%;
+    background:var(--primary);border:none;box-shadow:0 6px 18px rgba(29,107,252,.35);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;z-index:60;transition:transform .15s;}
+  .chat-fab:hover{transform:scale(1.06);background:var(--primary-hover);}
+  .chat-panel{position:fixed;right:24px;bottom:92px;width:340px;max-width:calc(100vw - 32px);
+    height:440px;max-height:calc(100vh - 140px);background:var(--raised);border:1px solid var(--border);
+    border-radius:14px;box-shadow:0 12px 32px rgba(17,24,39,.18);display:flex;flex-direction:column;
+    overflow:hidden;z-index:60;}
+  .chat-header{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px;
+    border-bottom:1px solid var(--border);background:var(--accent-soft);}
+  .chat-title{font-weight:700;font-size:14px;}
+  .chat-subtitle{font-size:12px;color:var(--text-tertiary);margin-top:2px;}
+  .chat-close{background:none;border:none;color:var(--text-tertiary);font-size:16px;cursor:pointer;}
+  .chat-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+  .chat-msg{max-width:85%;padding:9px 12px;border-radius:12px;font-size:13.5px;line-height:1.45;}
+  .chat-msg.assistant{background:var(--sunken);align-self:flex-start;border-bottom-left-radius:3px;}
+  .chat-msg.user{background:var(--primary);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
+  .chat-msg.loading{background:var(--sunken);align-self:flex-start;color:var(--text-tertiary);font-style:italic;}
+  .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+  .chat-input-row input{flex:1;border:1px solid var(--border-strong);border-radius:8px;padding:9px 12px;
+    font-family:var(--font-sans);font-size:13.5px;}
+  .chat-input-row input:focus{outline:2px solid var(--primary);outline-offset:1px;}
+  .chat-send{width:36px;height:36px;border-radius:8px;border:none;background:var(--primary);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .chat-send:hover{background:var(--primary-hover);}
+  @media(max-width:480px){.chat-panel{right:16px;bottom:84px;}.chat-fab{right:16px;bottom:16px;}}
+  .badge{font-family:var(--font-mono);font-weight:600;padding:2px 8px;border-radius:6px;font-size:12.5px;}
+  .badge.invite{background:var(--success-bg);color:var(--success);}
+  .badge.revise{background:var(--warning-bg);color:var(--warning);}
+  .badge.reject{background:var(--danger-bg);color:var(--danger);}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <img src="data:image/png;base64,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" alt="RS Bootcamp" class="brand-logo">
+      <div class="brand-text">
+        <div class="sub">Отбор в программу акселерации</div>
+      </div>
+    </div>
+    <button class="admin-toggle" onclick="openAdmin()">Панель организатора</button>
+  </div>
+
+  <h1>Заявка на акселерацию</h1>
+  <p class="lede">Заполните анкету о вашем проекте. После отправки ИИ-ассистент даст предварительную оценку заявки по критериям отбора — окончательное решение принимает команда RS Bootcamp.</p>
+
+  <div class="rail-label"><span id="railLabel">Шаг 1 из 6</span><span id="railPct">0%</span></div>
+  <div class="rail" id="rail"></div>
+
+  <div class="card" id="cardHost"></div>
+</div>
+
+<div id="adminOverlay" class="admin-overlay" style="display:none;">
+  <div class="admin-panel admin-panel-wide">
+    <div class="admin-head">
+      <h2 style="margin:0;font-size:18px;">Панель организатора</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="ghost" id="exportCsvBtn" onclick="exportCSV()" style="padding:7px 12px;font-size:13px;">Экспорт CSV</button>
+        <button class="admin-close" onclick="closeAdmin()">✕</button>
+      </div>
+    </div>
+    <div id="adminStats" class="admin-stats"></div>
+    <div class="admin-toolbar">
+      <input type="text" id="adminSearch" placeholder="Поиск по названию или основателю…">
+      <select id="adminFilterVerdict">
+        <option value="">Все статусы</option>
+        <option value="invite">Приглашаем</option>
+        <option value="revise">На доработку</option>
+        <option value="reject">Отклонено</option>
+      </select>
+      <select id="adminSort">
+        <option value="score_desc">Балл: сначала высокие</option>
+        <option value="score_asc">Балл: сначала низкие</option>
+        <option value="date_desc">Дата: сначала новые</option>
+        <option value="date_asc">Дата: сначала старые</option>
+        <option value="name_asc">Название: А→Я</option>
+      </select>
+    </div>
+    <div id="adminBody">Загрузка…</div>
+  </div>
+</div>
+
+<div id="appDetailOverlay" class="admin-overlay" style="display:none;">
+  <div class="admin-panel" id="appDetailPanel"></div>
+</div>
+
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" aria-label="Помощник">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8c-1.1 0-2.1-.2-3.1-.6L4 20l1.1-4.4C4.4 14.5 4 13.3 4 12Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/><circle cx="9" cy="12" r="1" fill="white"/><circle cx="12" cy="12" r="1" fill="white"/><circle cx="15" cy="12" r="1" fill="white"/></svg>
+</button>
+
+<div class="chat-panel" id="chatPanel" style="display:none;">
+  <div class="chat-header">
+    <div>
+      <div class="chat-title">Помощник по заявке</div>
+      <div class="chat-subtitle">Спросите, если что-то непонятно</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Например: что писать в разделе про рынок?">
+    <button class="chat-send" id="chatSend" onclick="sendChatMessage()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14.5 1.5L1 7.2c-.5.2-.5.9.1 1.1L6 10l1.7 4.9c.2.6.9.6 1.1.1L14.5 1.5Z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 10L14.5 1.5" stroke="white" stroke-width="1.3"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+/* ---------------- state ---------------- */
+/* ====== НАСТРОЙКИ ПОДКЛЮЧЕНИЯ (заполните после деплоя) ====== */
+const CONFIG = {
+  // URL вашего Cloudflare Worker, например https://rsbootcamp-app.ivan123.workers.dev
+  WORKER_URL: 'https://rs.kzmixxx.workers.dev',
+  // Project URL из Supabase: Project Settings → API → Project URL
+  SUPABASE_URL: 'https://hcclefhxftjlnlbwsdro.supabase.co',
+  // "anon public" ключ из Supabase: Project Settings → API → Project API keys
+  // Это публичный ключ, его МОЖНО вставлять во фронтенд — он ничего не может,
+  // кроме как добавлять новые заявки (см. supabase-setup.sql). Секретный
+  // service_role-ключ сюда вставлять НЕЛЬЗЯ — он только в Worker.
+  SUPABASE_ANON_KEY: 'sb_publishable_eVbwc_U2a56Af1lxlTg1FQ_7wEDsQ--',
+};
+/* ============================================================= */
+
+const state = {
+  productName:'', description:'', website:'', productLink:'', productLinkNotes:'', videoDemo:'',
+  stage:'', mrrAmount:'', mrrCurrency:'KZT', mrrContext:'', mrrUsd:'',
+  marketSize:'', targetMarkets:'',
+  team:[{role:'',name:'',experience:''}],
+  legalEntity:'', legalName:'', legalJurisdiction:'', legalJurisType:'Стандартная (ТОО, ИП и т.п.)',
+  deckFileName:'', deckText:'',
+  financeModel:'', financeHorizon:'Не указан / менее 1 года', financeFileName:'', financeFileText:'',
+  founderName:'', founderEmail:'', founderPhone:'',
+  consent:false
+};
+
+const steps = ['product','stage_market','team','legal_docs','contacts','results'];
+const stepTitles = {
+  product:'О продукте', stage_market:'Стадия и рынок', team:'Команда',
+  legal_docs:'Юрлицо и документы', contacts:'Контакты и согласие', results:'Результат оценки'
+};
+let current = 0;
+let aiResult = null;
+
+/* ---------------- rail ---------------- */
+function renderRail(){
+  const rail = document.getElementById('rail');
+  rail.innerHTML = '';
+  steps.slice(0,5).forEach((s,i)=>{
+    const d = document.createElement('div');
+    d.className = 'rail-step' + (i<current?' done':'') + (i===current?' current':'');
+    rail.appendChild(d);
+  });
+  document.getElementById('railLabel').textContent = current < 5
+    ? `Шаг ${current+1} из 5 · ${stepTitles[steps[current]]}`
+    : 'Оценка заявки';
+  document.getElementById('railPct').textContent = Math.round((Math.min(current,5)/5)*100) + '%';
+}
+
+/* ---------------- helpers ---------------- */
+function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+function bind(id, key, transform){
+  document.getElementById(id).addEventListener('input', e=>{
+    state[key] = transform ? transform(e.target.value) : e.target.value;
+  });
+}
+
+/* ---------------- step renderers ---------------- */
+function renderStep(){
+  renderRail();
+  const host = document.getElementById('cardHost');
+  host.innerHTML = '';
+  const fn = { product:stepProduct, stage_market:stepStageMarket, team:stepTeam,
+    legal_docs:stepLegalDocs, contacts:stepContacts, results:stepResults }[steps[current]];
+  fn(host);
+}
+
+function navBar(host, {back=true, nextLabel='Далее', onNext}){
+  const nav = el(`<div class="nav">
+    <div>${back? '<button class="ghost" id="backBtn">Назад</button>':''}</div>
+    <button class="primary" id="nextBtn">${nextLabel}</button>
+  </div>`);
+  host.appendChild(nav);
+  if(back) document.getElementById('backBtn').onclick = ()=>{ current--; renderStep(); };
+  document.getElementById('nextBtn').onclick = onNext;
+}
+
+function stepProduct(host){
+  host.innerHTML = `
+    <div class="step-title">О продукте</div>
+    <div class="step-desc">Расскажите, что вы делаете и где на это можно посмотреть.</div>
+    <div class="field">
+      <label>Название проекта</label>
+      <input type="text" id="f_name" value="${state.productName}">
+    </div>
+    <div class="field">
+      <label>Описание продукта <span class="hint">что делаете, для кого, какую проблему решаете</span></label>
+      <textarea id="f_desc" placeholder="Опишите продукт: проблема, решение, как это работает, чем отличаетесь от аналогов">${state.description}</textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Сайт проекта</label>
+        <input type="url" id="f_site" placeholder="https://" value="${state.website}">
+      </div>
+      <div class="field">
+        <label>Ссылка на продукт для тестирования <span class="hint">рабочий MVP/демо</span></label>
+        <input type="url" id="f_link" placeholder="https://" value="${state.productLink}">
+      </div>
+    </div>
+    <div class="field">
+      <label>Что мы увидим по ссылке <span class="hint">коротко: логин/тестовые данные, какой сценарий пройти</span></label>
+      <textarea id="f_linknotes" style="min-height:64px" placeholder="Например: зарегистрируйтесь тестовым email, пройдите сценарий X">${state.productLinkNotes}</textarea>
+    </div>
+    <div class="field">
+      <label>Видео-демо <span class="hint">необязательно, но приветствуется</span></label>
+      <input type="url" id="f_video" placeholder="https://youtu.be/..." value="${state.videoDemo}">
+      <div class="note">Ссылку посмотрит команда организаторов при рассмотрении заявки.</div>
+    </div>
+  `;
+  bind('f_name','productName'); bind('f_desc','description'); bind('f_site','website');
+  bind('f_link','productLink'); bind('f_linknotes','productLinkNotes'); bind('f_video','videoDemo');
+  navBar(host, {back:false, onNext: ()=>{
+    if(!state.description.trim()){ alert('Опишите продукт — это ключевая часть заявки.'); return; }
+    current++; renderStep();
+  }});
+}
+
+function stepStageMarket(host){
+  host.innerHTML = `
+    <div class="step-title">Стадия и рынок</div>
+    <div class="step-desc">На каком этапе проект и насколько большой рынок вы видите.</div>
+    <div class="field">
+      <label>Стадия развития продукта</label>
+      <div class="radio-group" id="stagePills">
+        ${['Идея (только концепция, ещё не начали делать)','MCI (минимально работающий концепт)','MVP+ (минимально жизнеспособный продукт)','Готовый продукт (запущен, есть пользователи)'].map(s=>
+          `<div class="radio-pill ${state.stage===s?'active':''}" data-v="${s}">${s}</div>`).join('')}
+      </div>
+      <div class="note">Выберите то, что точнее всего описывает текущее состояние продукта.</div>
+    </div>
+    <div class="field">
+      <label>Размер рынка <span class="hint">TAM/SAM, с цифрами если есть</span></label>
+      <textarea id="f_market" style="min-height:64px" placeholder="Оцените размер рынка: объём в деньгах, количество потенциальных клиентов, источник оценки">${state.marketSize}</textarea>
+    </div>
+    <div class="field">
+      <label>Целевые рынки масштабирования <span class="hint">в какие страны/сегменты планируете выходить</span></label>
+      <textarea id="f_targets" style="min-height:64px" placeholder="Например: сейчас Казахстан, далее Узбекистан и Кыргызстан">${state.targetMarkets}</textarea>
+    </div>
+    <div class="row3">
+      <div class="field">
+        <label>MRR <span class="hint">регулярная месячная выручка, если есть</span></label>
+        <input type="number" id="f_mrr" min="0" placeholder="0" value="${state.mrrAmount}">
+      </div>
+      <div class="field">
+        <label>Валюта</label>
+        <select id="f_cur">
+          ${['KZT','USD','UZS','KGS'].map(c=>`<option ${state.mrrCurrency===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Эквивалент в USD <span class="hint">если есть регулярная выручка</span></label>
+        <input type="number" id="f_mrrusd" min="0" placeholder="0" value="${state.mrrUsd}">
+      </div>
+    </div>
+    <div class="note">Укажите в поле «Эквивалент в USD», если у проекта есть регулярная выручка — это учитывается при оценке заявки.</div>
+    <div class="field" style="margin-top:12px;">
+      <label>Контекст по MRR <span class="hint">необязательно: динамика, число платящих клиентов</span></label>
+      <input type="text" id="f_mrrctx" value="${state.mrrContext}">
+    </div>
+  `;
+  host.querySelectorAll('#stagePills .radio-pill').forEach(p=>{
+    p.onclick = ()=>{ state.stage = p.dataset.v;
+      host.querySelectorAll('#stagePills .radio-pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+    };
+  });
+  bind('f_market','marketSize'); bind('f_targets','targetMarkets');
+  bind('f_mrr','mrrAmount'); bind('f_mrrctx','mrrContext'); bind('f_mrrusd','mrrUsd');
+  host.querySelector('#f_cur').addEventListener('change', e=> state.mrrCurrency = e.target.value);
+
+  navBar(host, {onNext: ()=>{
+    if(!state.stage){ alert('Выберите стадию развития продукта.'); return; }
+    current++; renderStep();
+  }});
+}
+
+function stepTeam(host){
+  host.innerHTML = `
+    <div class="step-title">Команда</div>
+    <div class="step-desc">Укажите ключевые роли и опыт каждого участника — это одна из главных метрик отбора.</div>
+    <div id="teamRows"></div>
+    <button type="button" class="add-btn" id="addTeam">+ Добавить участника команды</button>
+  `;
+  const rows = host.querySelector('#teamRows');
+  function renderRows(){
+    rows.innerHTML = '';
+    state.team.forEach((m,i)=>{
+      const row = el(`
+        <div class="team-row">
+          ${state.team.length>1?'<button class="remove" data-i="'+i+'">Удалить</button>':''}
+          <div class="row3">
+            <div class="field" style="margin-bottom:0;"><label>Роль</label>
+              <input type="text" data-k="role" data-i="${i}" placeholder="Например: CEO / CTO / CPO" value="${m.role}"></div>
+            <div class="field" style="margin-bottom:0;"><label>Имя</label>
+              <input type="text" data-k="name" data-i="${i}" value="${m.name}"></div>
+            <div class="field" style="margin-bottom:0;"><label>Опыт</label>
+              <input type="text" data-k="experience" data-i="${i}" placeholder="лет / бэкграунд" value="${m.experience}"></div>
+          </div>
+        </div>`);
+      rows.appendChild(row);
+    });
+    rows.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        state.team[+e.target.dataset.i][e.target.dataset.k] = e.target.value;
+      });
+    });
+    rows.querySelectorAll('.remove').forEach(btn=>{
+      btn.onclick = ()=>{ state.team.splice(+btn.dataset.i,1); renderRows(); };
+    });
+  }
+  renderRows();
+  host.querySelector('#addTeam').onclick = ()=>{ state.team.push({role:'',name:'',experience:''}); renderRows(); };
+
+  navBar(host, {onNext: ()=>{
+    const filled = state.team.filter(m=>m.role.trim() && m.name.trim());
+    if(filled.length===0){ alert('Добавьте хотя бы одного участника команды.'); return; }
+    state.team = filled;
+    current++; renderStep();
+  }});
+}
+
+function stepLegalDocs(host){
+  host.innerHTML = `
+    <div class="step-title">Юрлицо и документы</div>
+    <div class="step-desc">Юридическая форма, презентация проекта и финансовая модель.</div>
+    <div class="field">
+      <label>Есть зарегистрированное юридическое лицо?</label>
+      <div class="radio-group" id="legalPills">
+        ${['Да','Нет','В процессе регистрации'].map(s=>
+          `<div class="radio-pill ${state.legalEntity===s?'active':''}" data-v="${s}">${s}</div>`).join('')}
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Наименование юрлица <span class="hint">если есть</span></label>
+        <input type="text" id="f_legalname" value="${state.legalName}"></div>
+      <div class="field"><label>Юрисдикция</label>
+        <input type="text" id="f_jur" placeholder="Казахстан / AIFC / другое" value="${state.legalJurisdiction}"></div>
+    </div>
+    <div class="field">
+      <label>Тип регистрации <span class="hint">выберите применимый вариант</span></label>
+      <div class="radio-group" id="jurTypePills">
+        ${['Стандартная (ТОО, ИП и т.п.)','Enterprise-юрисдикция (МФЦА/AIFC, Delaware C-Corp и т.п.)'].map(s=>
+          `<div class="radio-pill ${state.legalJurisType===s?'active':''}" data-v="${s}">${s}</div>`).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>Презентация проекта (PDF)</label>
+      <div class="file-drop" id="deckDrop">
+        <span id="deckDropLabel">Нажмите, чтобы прикрепить PDF-презентацию</span>
+        <input type="file" id="deckInput" accept="application/pdf">
+      </div>
+      <div class="note" id="deckStatus"></div>
+    </div>
+    <div class="field">
+      <label>Финансовая модель <span class="hint">кратко: выручка, unit-экономика, ключевые допущения</span></label>
+      <textarea id="f_fin" placeholder="Опишите модель монетизации, юнит-экономику, прогноз выручки на 12 месяцев">${state.financeModel}</textarea>
+    </div>
+    <div class="field">
+      <label>Файл финансовой модели <span class="hint">необязательно: PDF, Excel (.xlsx/.xls) или CSV</span></label>
+      <div class="file-drop" id="finDrop">
+        <span id="finDropLabel">Нажмите, чтобы прикрепить файл финмодели</span>
+        <input type="file" id="finInput" accept=".pdf,.xlsx,.xls,.csv,application/pdf">
+      </div>
+      <div class="note" id="finFileStatus"></div>
+    </div>
+    <div class="field">
+      <label>Горизонт финансовой модели <span class="hint">на сколько лет вперёд рассчитана модель</span></label>
+      <div class="radio-group" id="finHorizonPills">
+        ${['Не указан / менее 1 года','1–2 года','3 года и более'].map(s=>
+          `<div class="radio-pill ${state.financeHorizon===s?'active':''}" data-v="${s}">${s}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  host.querySelectorAll('#legalPills .radio-pill').forEach(p=>{
+    p.onclick = ()=>{ state.legalEntity = p.dataset.v;
+      host.querySelectorAll('#legalPills .radio-pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+    };
+  });
+  host.querySelectorAll('#jurTypePills .radio-pill').forEach(p=>{
+    p.onclick = ()=>{ state.legalJurisType = p.dataset.v;
+      host.querySelectorAll('#jurTypePills .radio-pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+    };
+  });
+  host.querySelectorAll('#finHorizonPills .radio-pill').forEach(p=>{
+    p.onclick = ()=>{ state.financeHorizon = p.dataset.v;
+      host.querySelectorAll('#finHorizonPills .radio-pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+    };
+  });
+  bind('f_legalname','legalName'); bind('f_jur','legalJurisdiction'); bind('f_fin','financeModel');
+
+  const drop = host.querySelector('#deckDrop');
+  const input = host.querySelector('#deckInput');
+  drop.onclick = ()=> input.click();
+  input.addEventListener('change', async ()=>{
+    const file = input.files[0];
+    if(!file) return;
+    state.deckFileName = file.name;
+    document.getElementById('deckStatus').textContent = 'Извлекаем текст из PDF…';
+    try{
+      const text = await extractPdfText(file);
+      state.deckText = text.slice(0, 12000);
+      drop.classList.add('has-file');
+      document.getElementById('deckDropLabel').textContent = '✓ ' + file.name;
+      document.getElementById('deckStatus').textContent = `Текст извлечён (${state.deckText.length} симв.) — будет использован для оценки.`;
+    }catch(err){
+      state.deckText = '';
+      document.getElementById('deckStatus').textContent = 'Не удалось извлечь текст автоматически. Файл прикреплён (' + file.name + '), но опишите содержание презентации в описании продукта, чтобы оно попало в оценку.';
+      drop.classList.add('has-file');
+      document.getElementById('deckDropLabel').textContent = '✓ ' + file.name;
+    }
+  });
+
+  const finDrop = host.querySelector('#finDrop');
+  const finInput = host.querySelector('#finInput');
+  finDrop.onclick = ()=> finInput.click();
+  finInput.addEventListener('change', async ()=>{
+    const file = finInput.files[0];
+    if(!file) return;
+    state.financeFileName = file.name;
+    const ext = file.name.split('.').pop().toLowerCase();
+    document.getElementById('finFileStatus').textContent = 'Извлекаем данные из файла…';
+    try{
+      let text = '';
+      if(ext==='pdf'){ text = await extractPdfText(file); }
+      else if(ext==='xlsx' || ext==='xls' || ext==='csv'){ text = await extractSpreadsheetText(file); }
+      state.financeFileText = text.slice(0, 12000);
+      finDrop.classList.add('has-file');
+      document.getElementById('finDropLabel').textContent = '✓ ' + file.name;
+      document.getElementById('finFileStatus').textContent = state.financeFileText
+        ? `Данные извлечены (${state.financeFileText.length} симв.) — будут использованы при оценке финмодели.`
+        : 'Файл прикреплён, но автоматически извлечь данные не удалось — опишите модель текстом выше.';
+    }catch(err){
+      state.financeFileText = '';
+      finDrop.classList.add('has-file');
+      document.getElementById('finDropLabel').textContent = '✓ ' + file.name;
+      document.getElementById('finFileStatus').textContent = 'Файл прикреплён, но извлечь данные не удалось — опишите модель текстом выше.';
+    }
+  });
+
+  navBar(host, {onNext: ()=>{
+    if(!state.legalEntity){ alert('Укажите статус юридического лица.'); return; }
+    current++; renderStep();
+  }});
+}
+
+async function extractSpreadsheetText(file){
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: 'array' });
+  let out = '';
+  wb.SheetNames.slice(0, 5).forEach(name=>{
+    out += `--- Лист: ${name} ---\n`;
+    out += XLSX.utils.sheet_to_csv(wb.Sheets[name]).slice(0, 4000) + '\n';
+  });
+  return out.trim();
+}
+
+async function extractPdfText(file){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+  let text = '';
+  const pages = Math.min(pdf.numPages, 25);
+  for(let i=1;i<=pages;i++){
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(it=>it.str).join(' ') + '\n';
+  }
+  return text.trim();
+}
+
+function stepContacts(host){
+  host.innerHTML = `
+    <div class="step-title">Контакты и согласие</div>
+    <div class="step-desc">Контакты основателя и согласие на обработку персональных данных.</div>
+    <div class="field"><label>ФИО основателя</label>
+      <input type="text" id="f_fname" value="${state.founderName}"></div>
+    <div class="row2">
+      <div class="field"><label>Email</label>
+        <input type="email" id="f_email" value="${state.founderEmail}"></div>
+      <div class="field"><label>Телефон</label>
+        <input type="tel" id="f_phone" placeholder="+7 7__ ___ __ __" value="${state.founderPhone}"></div>
+    </div>
+    <div class="consent">
+      <input type="checkbox" id="f_consent" ${state.consent?'checked':''}>
+      <label for="f_consent">Даю согласие на обработку моих персональных данных (ФИО, контактные данные, сведения о проекте) организатором программы акселерации RS Bootcamp в целях рассмотрения заявки, в соответствии с применимым законодательством о защите персональных данных.</label>
+    </div>
+  `;
+  bind('f_fname','founderName'); bind('f_email','founderEmail'); bind('f_phone','founderPhone');
+  host.querySelector('#f_consent').addEventListener('change', e=> state.consent = e.target.checked);
+
+  navBar(host, {nextLabel:'Отправить на ИИ-оценку', onNext: ()=>{
+    if(!state.founderName.trim() || !state.founderEmail.trim() || !state.founderPhone.trim()){
+      alert('Заполните ФИО, email и телефон основателя.'); return;
+    }
+    if(!state.consent){ alert('Для отправки заявки нужно согласие на обработку персональных данных.'); return; }
+    current++; renderStep();
+    runEvaluation();
+  }});
+}
+
+/* ---------------- results / AI evaluation ---------------- */
+/* Критерии, которые оценивает ИИ (требуют смыслового суждения). weight = максимум баллов. */
+const AI_CRITERIA = [
+  {key:'product', label:'Продукт и идея — чёткость описания', weight:15},
+  {key:'team', label:'Команда — состав и релевантный опыт', weight:15},
+  {key:'deck', label:'Презентация — дизайн и содержание', weight:12},
+  {key:'market_size', label:'Размер рынка', weight:8},
+  {key:'target_markets', label:'Рынки масштабирования', weight:8},
+  {key:'finance', label:'Финмодель — качество и обоснованность', weight:10},
+];
+/* Детерминированные критерии — считаются по формулам, без ИИ, чтобы не было разброса оценок. */
+const DETERMINISTIC_MAX = { stage:10, legal:6, mrr:3, fin_horizon:2, demo:0.5 };
+
+function stageScore(stage){
+  if((stage||'').startsWith('Готовый')) return 10;
+  if((stage||'').startsWith('MVP+')) return 7;
+  if((stage||'').startsWith('MCI')) return 4;
+  if((stage||'').startsWith('Идея')) return 2;
+  return 0;
+}
+function legalScore(entity, jurisType){
+  let base = entity==='Да' ? 8 : entity==='В процессе регистрации' ? 5 : entity==='Нет' ? 2 : 0;
+  if((jurisType||'').startsWith('Enterprise')) base = Math.min(10, base + 2);
+  return base;
+}
+function mrrBonus(usd){
+  const v = Number(usd) || 0;
+  if(v<=0) return 0;
+  if(v<=1000) return 1;
+  if(v<=5000) return 2;
+  return 3; // до 10 000 и выше — максимум по правилам заказчика
+}
+function financeHorizonBonus(h){ return h==='3 года и более' ? 2 : 0; }
+function demoBonus(link){ return (link||'').trim() ? 0.5 : 0; }
+
+function buildPrompt(){
+  const teamText = state.team.map(m=>`- ${m.role}: ${m.name} — опыт: ${m.experience||'не указан'}`).join('\n');
+  return `Ты — член отборочного комитета акселератора RS Bootcamp. Оцени заявку стартапа по 6 критериям, каждый по шкале 0–10 (0 = отсутствует/очень слабо, 10 = отлично). Ранняя стадия акселерации в Центральной Азии (Казахстан, Узбекистан, Кыргызстан) — оценивай реалистично для этой стадии, а не по меркам Series A.
+
+ПРАВИЛА ОЦЕНКИ ПО КАЖДОМУ КРИТЕРИЮ:
+
+1) product — Описание продукта: чёткое и понятное описание (ясна проблема, решение, для кого продукт) = высокий балл (8-10). Расплывчатое, общее, без конкретики = низкий балл (0-4).
+
+2) team — Команда: балл выше, если по каждому участнику указана роль И описан релевантный опыт с конкретикой (компании/проекты/годы/индустрия), которая подтверждает компетенцию в этой роли. Общие фразы без деталей или нерелевантный опыт = ниже балл.
+
+3) deck — Презентация: оцени дизайн/подачу (насколько презентация выглядит профессионально, структурирована) И полноту содержания. Проверь, раскрыты ли эти 8 блоков и насколько качественно:
+   1. Проблема — острая боль клиента и почему существующие варианты не работают
+   2. Решение — продукт/услуга и как именно он элегантно устраняет проблему
+   3. Рынок (TAM/SAM/SOM) — размер целевого рынка и потенциал роста
+   4. Бизнес-модель — как проект зарабатывает деньги (подписка, комиссия, прямые продажи)
+   5. Конкуренты — главные преимущества и отличия от других игроков
+   6. Traction — реальные достижения, метрики роста, число пользователей, первые продажи
+   7. Команда — ключевые участники, опыт, компетенции
+   8. Roadmap — план на ближайшие 12-18 месяцев
+   10/10 = все 8 блоков раскрыты качественно + сильный дизайн; снижай балл за каждый отсутствующий/слабый блок и за слабую визуальную подачу. В comment перечисли, каких блоков не хватает (если есть).
+
+4) market_size — Размер рынка: чем больше обоснованный рынок (с цифрами/источником), тем выше балл. Рынок без цифр и обоснования — низкий балл.
+
+5) target_markets — Целевые рынки масштабирования: выше балл, если указаны конкретные страны/рынки с населением больше 100 000 человек и обоснован потенциал выхода туда. Небольшой, нечёткий или единственный маленький рынок — ниже балл.
+
+6) finance — Финансовая модель: оцени ТОЛЬКО качество и обоснованность самой модели (реалистичность unit-экономики, прогнозов выручки, ключевых допущений). НЕ учитывай длительность горизонта прогноза — это оценивается отдельно вне твоей части.
+
+ДАННЫЕ ЗАЯВКИ:
+
+Название: ${state.productName || '—'}
+Описание продукта: ${state.description || '—'}
+Сайт: ${state.website || '—'}
+Ссылка на продукт для тестирования: ${state.productLink || '—'}
+Что должно быть видно по ссылке: ${state.productLinkNotes || '—'}
+
+Размер рынка: ${state.marketSize || '—'}
+Целевые рынки масштабирования: ${state.targetMarkets || '—'}
+
+Команда:
+${teamText || 'не указана'}
+
+Текст презентации (извлечён из PDF, может быть неполным): ${state.deckText ? state.deckText.slice(0,4000) : (state.deckFileName ? 'файл приложен: '+state.deckFileName+', текст не извлечён — оцени по описанию продукта и попроси заявителя приложить текстовое summary' : 'презентация не приложена')}
+
+Финансовая модель (описание заявителя): ${state.financeModel || '—'}
+Данные из приложенного файла финмодели (${state.financeFileName || 'файл не приложен'}): ${state.financeFileText ? state.financeFileText.slice(0,4000) : 'нет'}
+
+ВАЖНО:
+- У тебя есть инструмент веб-поиска. Если указан сайт или ссылка на продукт, ОБЯЗАТЕЛЬНО выполни по ним поиск, чтобы проверить, существует ли проект, живой ли сайт, что о нём есть в открытых источниках — и учти это при оценке product и market_size. Ты не можешь кликать по кнопкам внутри продукта и проходить пользовательские сценарии — оценивай на основе того, что реально нашёл через поиск, плюс описание заявителя. Не выдумывай, что «протестировал» продукт, если поиск ничего не дал — так и напиши в комментарии.
+- Видео-демо ты смотреть не можешь (нет доступа к видео) — вообще не упоминай и не оценивай видео ни в одном из критериев, это учитывается отдельно и без твоего участия.
+- Стадию развития, юрлицо, MRR и горизонт финмодели НЕ оценивай — это считается отдельно по формулам.
+
+Верни ТОЛЬКО валидный JSON, без markdown-разметки и пояснений вне JSON, строго такой структуры:
+{
+  "criteria": [
+    {"key":"product","score":0,"comment":"1 короткое предложение на русском"},
+    {"key":"team","score":0,"comment":"..."},
+    {"key":"deck","score":0,"comment":"..."},
+    {"key":"market_size","score":0,"comment":"..."},
+    {"key":"target_markets","score":0,"comment":"..."},
+    {"key":"finance","score":0,"comment":"..."}
+  ],
+  "summary": "2-3 предложения общего вывода на русском"
+}`;
+}
+
+async function runEvaluation(){
+  renderStep();
+  const host = document.getElementById('cardHost');
+  host.innerHTML = `<div class="loading"><div class="spinner"></div>ИИ-ассистент анализирует заявку…</div>`;
+
+  try{
+    const response = await fetch(`${CONFIG.WORKER_URL}/evaluate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        temperature: 0,
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        messages: [{ role: "user", content: buildPrompt() }]
+      })
+    });
+    const data = await response.json();
+    const blocks = data.content || [];
+    const textBlock = [...blocks].reverse().find(b=>b.type==='text');
+    const raw = textBlock ? textBlock.text : '{}';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    aiResult = normalizeResult(parsed);
+    await saveApplication(aiResult);
+  }catch(err){
+    console.error(err);
+    aiResult = { error: true, message: 'Не удалось получить оценку. Заявка сохранена без ИИ-скоринга — организатор сможет оценить её вручную.' };
+    await saveApplication(aiResult);
+  }
+  renderStep();
+}
+
+function normalizeResult(parsed){
+  // ИИ-критерии: балл 0-10 от модели, переводим в очки по весу критерия
+  const aiCrit = AI_CRITERIA.map(c=>{
+    const found = (parsed.criteria||[]).find(x=>x.key===c.key) || {score:0,comment:'Нет данных для оценки.'};
+    const raw = Math.max(0, Math.min(10, Number(found.score)||0));
+    return { key:c.key, label:c.label, points: raw/10*c.weight, max:c.weight, comment: found.comment || '' };
+  });
+  const byKey = k => aiCrit.find(c=>c.key===k);
+
+  // Детерминированные критерии — считаются по формулам, не через ИИ
+  const stageRaw = stageScore(state.stage);
+  const stageCrit = { key:'stage', label:'Стадия развития продукта', points:stageRaw, max:DETERMINISTIC_MAX.stage,
+    comment: state.stage ? `Стадия: ${state.stage}.` : 'Стадия не указана.' };
+
+  const legalRaw = legalScore(state.legalEntity, state.legalJurisType);
+  const legalCrit = { key:'legal', label:'Юридическое лицо', points: legalRaw/10*DETERMINISTIC_MAX.legal, max:DETERMINISTIC_MAX.legal,
+    comment: state.legalEntity ? `${state.legalEntity}${(state.legalJurisType||'').startsWith('Enterprise')?' · enterprise-юрисдикция (+бонус)':''}` : 'Не указано.' };
+
+  const mrrPts = mrrBonus(state.mrrUsd);
+  const mrrCrit = { key:'mrr', label:'MRR (бонус)', points:mrrPts, max:DETERMINISTIC_MAX.mrr,
+    comment: state.mrrUsd ? `~$${state.mrrUsd} MRR.` : 'MRR не указан.' };
+
+  const durPts = financeHorizonBonus(state.financeHorizon);
+  const durCrit = { key:'fin_horizon', label:'Горизонт финмодели (бонус)', points:durPts, max:DETERMINISTIC_MAX.fin_horizon,
+    comment: state.financeHorizon==='3 года и более' ? 'Модель на 3+ года.' : 'Горизонт менее 3 лет.' };
+
+  const demoPts = demoBonus(state.videoDemo);
+  const demoCrit = { key:'demo', label:'Видео-демо (бонус)', points:demoPts, max:DETERMINISTIC_MAX.demo,
+    comment: demoPts>0 ? 'Видео-демо приложено.' : 'Видео-демо не приложено.' };
+
+  const criteria = [
+    byKey('product'), stageCrit, legalCrit, byKey('team'), byKey('deck'),
+    byKey('market_size'), byKey('target_markets'), mrrCrit, durCrit, byKey('finance'), demoCrit
+  ];
+
+  const maxTotal = criteria.reduce((s,c)=> s + c.max, 0);
+  const total = criteria.reduce((s,c)=> s + c.points, 0);
+  const pct = maxTotal>0 ? (total/maxTotal*100) : 0;
+  let verdict = 'reject';
+  if(pct>=70) verdict='invite'; else if(pct>=45) verdict='revise';
+
+  return { criteria, total: Math.round(total*10)/10, maxTotal: Math.round(maxTotal*10)/10, pct: Math.round(pct), verdict, summary: parsed.summary || '' };
+}
+
+function verdictLabel(v){
+  return v==='invite' ? 'Приглашаем на очный отбор'
+    : v==='revise' ? 'На доработку — нужны уточнения'
+    : 'Пока не проходит отбор';
+}
+
+function stepResults(host){
+  if(!aiResult){
+    host.innerHTML = `<div class="loading"><div class="spinner"></div>ИИ-ассистент анализирует заявку…</div>`;
+    return;
+  }
+  if(aiResult.error){
+    host.innerHTML = `<div class="step-title">Заявка отправлена</div>
+      <p class="step-desc">${aiResult.message}</p>`;
+    return;
+  }
+  const r = aiResult;
+  host.innerHTML = `
+    <div class="step-title">Результат ИИ-оценки</div>
+    <div class="step-desc">Предварительная оценка. Финальное решение принимает команда RS Bootcamp — критерии и подробная раскладка баллов используются организаторами внутренне и заявителю не показываются.</div>
+    <div class="verdict ${r.verdict}">
+      <span class="score">${r.total}</span><span class="score-max"> / ${r.maxTotal}</span>
+      <div class="label">${verdictLabel(r.verdict)}</div>
+      <div class="summary">${r.summary}</div>
+    </div>
+  `;
+}
+
+/* ---------------- storage ---------------- */
+async function saveApplication(result){
+  try{
+    const payload = { ...state, result, submittedAt: new Date().toISOString() };
+    await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/applications`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ payload })
+    });
+  }catch(e){ console.error('supabase save failed', e); }
+}
+
+/* ---------------- admin panel ---------------- */
+let adminPassword = '';
+
+async function openAdmin(){
+  document.getElementById('adminOverlay').style.display = 'flex';
+  document.getElementById('adminStats').innerHTML = '';
+  const body = document.getElementById('adminBody');
+  body.textContent = 'Загрузка…';
+
+  if(!adminPassword){
+    adminPassword = (window.prompt('Пароль организатора:') || '').trim();
+    if(!adminPassword){ closeAdmin(); return; }
+  }
+
+  try{
+    const resp = await fetch(`${CONFIG.WORKER_URL}/admin-applications`, {
+      headers: { 'x-admin-password': adminPassword }
+    });
+    if(resp.status === 401){
+      adminPassword = '';
+      const errData = await resp.json().catch(()=>({}));
+      body.innerHTML = `<p style="color:var(--danger);font-size:14px;">Неверный пароль. Нажмите на кнопку ещё раз, чтобы попробовать снова.</p><p class="note">${escapeHtml(errData.debug||'')}</p>`;
+      return;
+    }
+    if(!resp.ok){
+      const errText = await resp.text().catch(()=> '');
+      body.innerHTML = `<p style="color:var(--danger);font-size:14px;">Ошибка сервера (${resp.status}). ${escapeHtml(errText.slice(0,200))}</p>`;
+      return;
+    }
+    const data = await resp.json();
+    const rows = (data||[]).map(r=>r.payload);
+    window.__adminRowsAll = rows;
+    if(rows.length===0){ body.innerHTML = '<p style="color:var(--text-tertiary);font-size:14px;">Пока нет заявок.</p>'; return; }
+    renderAdminTable();
+  }catch(e){
+    console.error(e);
+    body.innerHTML = '<p style="color:var(--danger);font-size:14px;">Не удалось загрузить заявки. Проверьте адреса в CONFIG и настройки Worker/Supabase.</p>';
+  }
+}
+
+function renderAdminTable(){
+  const all = window.__adminRowsAll || [];
+  const body = document.getElementById('adminBody');
+  const search = (document.getElementById('adminSearch').value || '').toLowerCase().trim();
+  const verdictFilter = document.getElementById('adminFilterVerdict').value;
+  const sortMode = document.getElementById('adminSort').value;
+
+  let rows = all.filter(a=>{
+    if(verdictFilter && (!a.result || a.result.verdict !== verdictFilter)) return false;
+    if(search){
+      const hay = `${a.productName||''} ${a.founderName||''} ${a.founderEmail||''}`.toLowerCase();
+      if(!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  rows.sort((a,b)=>{
+    const at = (a.result && a.result.total!=null) ? a.result.total : -1;
+    const bt = (b.result && b.result.total!=null) ? b.result.total : -1;
+    const ad = a.submittedAt || ''; const bd = b.submittedAt || '';
+    if(sortMode==='score_desc') return bt - at;
+    if(sortMode==='score_asc') return at - bt;
+    if(sortMode==='date_desc') return bd.localeCompare(ad);
+    if(sortMode==='date_asc') return ad.localeCompare(bd);
+    if(sortMode==='name_asc') return (a.productName||'').localeCompare(b.productName||'');
+    return 0;
+  });
+
+  // stats всегда считаем по полному набору, не по отфильтрованному
+  const scored = all.filter(a=>a.result && a.result.total!=null);
+  const avg = scored.length ? (scored.reduce((s,a)=>s+a.result.total,0)/scored.length) : 0;
+  const cnt = v => all.filter(a=>a.result && a.result.verdict===v).length;
+  document.getElementById('adminStats').innerHTML = `
+    <div class="admin-stat"><div class="num">${all.length}</div><div class="lbl">Всего заявок</div></div>
+    <div class="admin-stat"><div class="num">${avg.toFixed(1)}</div><div class="lbl">Средний балл (из ${scored[0]?scored[0].result.maxTotal:'89.5'})</div></div>
+    <div class="admin-stat"><div class="num" style="color:var(--success);">${cnt('invite')}</div><div class="lbl">Приглашаем</div></div>
+    <div class="admin-stat"><div class="num" style="color:var(--warning);">${cnt('revise')}</div><div class="lbl">На доработку</div></div>
+    <div class="admin-stat"><div class="num" style="color:var(--danger);">${cnt('reject')}</div><div class="lbl">Отклонено</div></div>
+  `;
+
+  if(rows.length===0){ body.innerHTML = '<p style="color:var(--text-tertiary);font-size:14px;">Ничего не найдено по этим фильтрам.</p>'; window.__adminRows = []; return; }
+
+  body.innerHTML = `<table class="apps"><thead><tr>
+    <th>Проект</th><th>Основатель</th><th>Стадия</th><th>MRR</th><th>Дата</th><th>Балл</th><th>Статус</th>
+  </tr></thead><tbody>${rows.map((a,i)=>{
+    const res = a.result || {};
+    const badge = res.error ? '<span class="badge revise">без оценки</span>'
+      : `<span class="badge ${res.verdict}">${res.total}/${res.maxTotal} · ${res.pct}%</span>`;
+    const dateStr = a.submittedAt ? new Date(a.submittedAt).toLocaleDateString('ru-RU') : '—';
+    return `<tr onclick="showApp(${i})">
+      <td><strong>${escapeHtml(a.productName||'Без названия')}</strong><br><span style="color:var(--text-tertiary);font-size:12px;">${escapeHtml((a.description||'').slice(0,60))}${(a.description||'').length>60?'…':''}</span></td>
+      <td>${escapeHtml(a.founderName||'—')}<br><span style="color:var(--text-tertiary);font-size:12px;">${escapeHtml(a.founderEmail||'')}</span></td>
+      <td>${escapeHtml((a.stage||'—').slice(0,4))}</td>
+      <td style="font-family:var(--font-mono);">${a.mrrAmount||0} ${a.mrrCurrency||''}</td>
+      <td style="font-size:12.5px;color:var(--text-tertiary);">${dateStr}</td>
+      <td>${res.total!=null?res.total+'/'+res.maxTotal:'—'}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
+  window.__adminRows = rows;
+}
+
+['adminSearch','adminFilterVerdict','adminSort'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', renderAdminTable);
+});
+
+function exportCSV(){
+  const rows = window.__adminRows || [];
+  if(rows.length===0){ alert('Нет данных для экспорта — сначала откройте панель организатора.'); return; }
+  const headers = ['Проект','Описание','Основатель','Email','Телефон','Стадия','Юрлицо','MRR','Валюта','Балл','Максимум','Процент','Статус','Дата подачи','Сайт','Ссылка на продукт','Видео-демо'];
+  const csvRows = [headers.join(',')];
+  rows.forEach(a=>{
+    const res = a.result || {};
+    const line = [
+      a.productName, a.description, a.founderName, a.founderEmail, a.founderPhone,
+      a.stage, a.legalEntity, a.mrrAmount, a.mrrCurrency,
+      res.total, res.maxTotal, res.pct, verdictLabel(res.verdict),
+      a.submittedAt, a.website, a.productLink, a.videoDemo
+    ].map(v=>{
+      const s = (v===undefined || v===null) ? '' : String(v);
+      return '"' + s.replace(/"/g,'""') + '"';
+    });
+    csvRows.push(line.join(','));
+  });
+  const csvContent = '\uFEFF' + csvRows.join('\n');
+  const blob = new Blob([csvContent], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rsbootcamp-заявки-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function closeAdmin(){ document.getElementById('adminOverlay').style.display='none'; }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function getEmbedUrl(url){
+  if(!url) return null;
+  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+  if(yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vm = url.match(/vimeo\.com\/(\d+)/);
+  if(vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return null;
+}
+
+function showApp(i){
+  const a = window.__adminRows[i];
+  const res = a.result || {};
+  const critRows = (res.criteria||[]).map(c=>`
+    <div class="crit">
+      <div class="crit-top"><div class="crit-name">${escapeHtml(c.label)}</div><div class="crit-score">${Math.round(c.points*10)/10}/${c.max}</div></div>
+      <div class="crit-bar-bg"><div class="crit-bar" style="width:${c.max>0?Math.min(100,c.points/c.max*100):0}%"></div></div>
+      <div class="crit-comment">${escapeHtml(c.comment||'')}</div>
+    </div>`).join('') || `<p class="note">${escapeHtml(res.message||'Оценка недоступна.')}</p>`;
+
+  const embed = getEmbedUrl(a.videoDemo);
+  const videoBlock = a.videoDemo
+    ? (embed
+        ? `<div style="margin:14px 0;"><iframe src="${embed}" style="width:100%;aspect-ratio:16/9;border:none;border-radius:10px;" allowfullscreen></iframe></div>`
+        : `<div class="note" style="margin:10px 0;">Видео-демо: <a href="${escapeHtml(a.videoDemo)}" target="_blank" rel="noopener">${escapeHtml(a.videoDemo)}</a> (плеер для этой платформы встроить не удалось — откройте ссылку вручную)</div>`)
+    : '';
+
+  const panel = document.getElementById('appDetailPanel');
+  panel.innerHTML = `
+    <div class="admin-head">
+      <h2 style="margin:0;font-size:18px;">${escapeHtml(a.productName||'Без названия')}</h2>
+      <button class="admin-close" onclick="closeAppDetail()">✕</button>
+    </div>
+    <div style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;">
+      <strong>Основатель:</strong> ${escapeHtml(a.founderName)} · ${escapeHtml(a.founderEmail)} · ${escapeHtml(a.founderPhone)}<br>
+      <strong>Юрлицо:</strong> ${escapeHtml(a.legalEntity)} ${escapeHtml(a.legalName||'')} · ${escapeHtml(a.legalJurisType||'')}<br>
+      <strong>Стадия:</strong> ${escapeHtml(a.stage)}<br>
+      <strong>MRR:</strong> ${escapeHtml(String(a.mrrAmount||0))} ${escapeHtml(a.mrrCurrency||'')} (~$${escapeHtml(String(a.mrrUsd||0))})<br>
+      <strong>Сайт:</strong> ${a.website?`<a href="${escapeHtml(a.website)}" target="_blank" rel="noopener">${escapeHtml(a.website)}</a>`:'—'}<br>
+      <strong>Ссылка на продукт:</strong> ${a.productLink?`<a href="${escapeHtml(a.productLink)}" target="_blank" rel="noopener">${escapeHtml(a.productLink)}</a>`:'—'}<br>
+      ${a.productLinkNotes?`<strong>Как тестировать:</strong> ${escapeHtml(a.productLinkNotes)}<br>`:''}
+    </div>
+    <p style="font-size:13.5px;line-height:1.6;margin:12px 0;"><strong>Описание:</strong> ${escapeHtml(a.description)}</p>
+    ${a.financeModel?`<p style="font-size:13.5px;line-height:1.6;margin:12px 0;"><strong>Финмодель:</strong> ${escapeHtml(a.financeModel)} ${a.financeFileName?'· файл: '+escapeHtml(a.financeFileName):''} · горизонт: ${escapeHtml(a.financeHorizon||'—')}</p>`:''}
+    ${videoBlock}
+    <h3 style="font-size:14px;margin:18px 0 8px;">ИИ-оценка (${res.total!=null?res.total+'/'+res.maxTotal:'нет'})${res.summary?' — '+escapeHtml(res.summary):''}</h3>
+    ${critRows}
+  `;
+  document.getElementById('appDetailOverlay').style.display = 'flex';
+}
+function closeAppDetail(){ document.getElementById('appDetailOverlay').style.display='none'; }
+
+/* ---------------- chat helper widget ---------------- */
+let chatMessages = [];
+let chatLoading = false;
+let chatOpen = false;
+
+function toggleChat(){
+  chatOpen = !chatOpen;
+  document.getElementById('chatPanel').style.display = chatOpen ? 'flex' : 'none';
+  if(chatOpen && chatMessages.length===0){
+    chatMessages.push({role:'assistant', text:'Привет! Я помогу разобраться с формой заявки RS Bootcamp. Спрашивайте про любой пункт — например, «что писать в разделе про рынок?» или «зачем нужна ссылка на продукт».'});
+    renderChatBody();
+  }
+  if(chatOpen){ document.getElementById('chatInput').focus(); }
+}
+
+function summaryOfFilledFields(){
+  const parts = [];
+  if(state.productName) parts.push(`название: ${state.productName}`);
+  if(state.stage) parts.push(`стадия: ${state.stage}`);
+  if(state.legalEntity) parts.push(`юрлицо: ${state.legalEntity}`);
+  const filledTeam = state.team.filter(m=>m.role && m.name).length;
+  if(filledTeam) parts.push(`участников команды указано: ${filledTeam}`);
+  if(state.mrrUsd) parts.push(`MRR: ~$${state.mrrUsd}`);
+  if(state.financeHorizon && state.financeHorizon!=='Не указан / менее 1 года') parts.push(`горизонт финмодели: ${state.financeHorizon}`);
+  if(state.deckFileName) parts.push('презентация приложена');
+  if(state.financeFileName) parts.push('файл финмодели приложен');
+  if(state.videoDemo) parts.push('видео-демо приложено');
+  return parts.length ? parts.join('; ') : 'пока ничего не заполнено';
+}
+
+function buildChatPrompt(question){
+  const historyText = chatMessages.slice(-6).map(m=> (m.role==='user'?'Заявитель: ':'Ассистент: ') + m.text).join('\n');
+  return `Ты — дружелюбный ассистент-подсказчик внутри формы заявки на акселерацию RS Bootcamp. Помогай заявителю понять, что и как заполнять в каждом разделе, объясняй логику оценки, при необходимости приводи короткий пример. Отвечай кратко (2-4 предложения), простым языком, на русском, без markdown-разметки и без списков в звёздочках. Если вопрос не связан с заявкой или акселерацией — вежливо верни разговор к теме формы.
+
+Заявитель сейчас на шаге "${stepTitles[steps[current]] || '—'}".
+Уже заполнено в заявке: ${summaryOfFilledFields()}.
+
+Недавняя переписка:
+${historyText || '(нет)'}
+
+Новый вопрос заявителя: "${question}"
+
+Ответь только текстом ответа.`;
+}
+
+function renderChatBody(){
+  const body = document.getElementById('chatBody');
+  body.innerHTML = chatMessages.map(m=>
+    `<div class="chat-msg ${m.role}">${escapeHtml(m.text)}</div>`
+  ).join('') + (chatLoading ? '<div class="chat-msg loading">печатает…</div>' : '');
+  body.scrollTop = body.scrollHeight;
+}
+
+async function sendChatMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text || chatLoading) return;
+  input.value = '';
+  chatMessages.push({role:'user', text});
+  renderChatBody();
+  chatLoading = true;
+  renderChatBody();
+  try{
+    const response = await fetch(`${CONFIG.WORKER_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: buildChatPrompt(text) }]
+      })
+    });
+    const data = await response.json();
+    const textBlock = (data.content||[]).find(b=>b.type==='text');
+    const reply = textBlock ? textBlock.text.trim() : 'Не получилось сформулировать ответ, попробуйте переформулировать вопрос.';
+    chatMessages.push({role:'assistant', text: reply});
+  }catch(err){
+    console.error(err);
+    chatMessages.push({role:'assistant', text:'Не получилось получить ответ — проверьте соединение и попробуйте ещё раз.'});
+  }
+  chatLoading = false;
+  renderChatBody();
+}
+
+const chatInputEl = document.getElementById('chatInput');
+if(chatInputEl){
+  chatInputEl.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); sendChatMessage(); }
+  });
+}
+
+/* ---------------- init ---------------- */
+renderStep();
+</script>
+</body>
+</html>
